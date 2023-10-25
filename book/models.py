@@ -12,3 +12,9 @@ class Book(models.Model):
     inventory = models.PositiveIntegerField()
     daily_fee = models.DecimalField(decimal_places=2, max_digits=10)
 
+    class Meta:
+        ordering = ["title"]
+        unique_together = ("title", "author")
+
+    def __str__(self):
+        return self.title
