@@ -2,15 +2,17 @@ from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 
 from borrowing.models import Borrowing
-from borrowing.serializers import BorrowingSerializer, BorrowingListSerializer
+from borrowing.serializers import (
+    BorrowingSerializer,
+    BorrowingListSerializer,
+    BorrowingDetailSerializer,
+)
 
 
-# Create your views here.
 class BorrowingViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
     GenericViewSet,
 ):
     queryset = Borrowing.objects.all()
@@ -39,5 +41,8 @@ class BorrowingViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return BorrowingListSerializer
+
+        if self.action == "retrieve":
+            return BorrowingDetailSerializer
 
         return self.serializer_class
