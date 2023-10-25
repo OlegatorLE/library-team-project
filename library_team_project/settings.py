@@ -143,8 +143,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Planetarium Service API",
-    "DESCRIPTION": "Order Planetarium Shows tickets",
+    "TITLE": "Library Management System API",
+    "DESCRIPTION": "Manage book borrowings and payments online for the local library.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
