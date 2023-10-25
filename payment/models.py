@@ -15,7 +15,7 @@ class Payment(models.Model):
     )
 
     status = models.IntegerField(
-        choices=STATUS_CHOICES,default=0
+        choices=STATUS_CHOICES, default=0
     )
     type = models.IntegerField(
         choices=TYPE_CHOICES, default=0
