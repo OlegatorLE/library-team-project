@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "book",
     "payment",
     "user",
-    # fsdf
 ]
 
 MIDDLEWARE = [
