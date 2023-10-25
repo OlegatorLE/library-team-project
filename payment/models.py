@@ -21,7 +21,7 @@ class Payment(models.Model):
         choices=TYPE_CHOICES, default=0
     )
 
-    borrowing_id = models.ForeignKey(
+    borrowing = models.ForeignKey(
         Borrowing, on_delete=models.CASCADE, related_name="payments"
     )
 
