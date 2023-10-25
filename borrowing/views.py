@@ -77,3 +77,6 @@ class BorrowingViewSet(
             book.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
