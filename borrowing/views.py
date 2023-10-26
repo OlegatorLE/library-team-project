@@ -1,3 +1,4 @@
+import http
 from datetime import datetime
 
 from django.db import transaction
@@ -91,7 +92,7 @@ class BorrowingViewSet(
 
     @staticmethod
     def borrowing_helper(borrowing: Borrowing):
-        money_to_pay = borrowing.price
+        money_to_pay = int(borrowing.price * 100)
         session_data = create_checkout_session(money_to_pay)
 
         Payment.objects.create(
