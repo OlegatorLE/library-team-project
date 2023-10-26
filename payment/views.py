@@ -3,6 +3,8 @@ from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse
 
 from payment.models import Payment
 from payment.serializers import PaymentSerializer, PaymentListSerializer
@@ -68,3 +70,40 @@ def create_checkout_session(money_to_pay: int, borrowing_id: int):
         return {"session_id": checkout_session["id"], "session_url": checkout_session["url"]}
     except Exception as e:
         return {"error": str(e)}
+
+
+@api_view(['GET'])
+def api_root(request):
+    data = {
+        "User-API": {
+            "user_create": reverse(
+                "user:create", request=request
+            ),
+            "token_obtain_pair": reverse(
+                "user:token_obtain_pair", request=request
+            ),
+            "token_refresh": reverse(
+                "user:token_refresh", request=request
+            ),
+        },
+        "Book-API": {
+            "book_list": reverse("book:book-list", request=request),
+        },
+    }
+
+    if request.user.is_authenticated:
+        data["Borrowing-API"] = {
+            "borrowings": reverse(
+                "borrowing:borrowing-list", request=request
+            ),
+        }
+        data["Payment-API"] = {
+            "payments": reverse(
+                "payment:payment-list", request=request
+            ),
+        }
+        data["User-API"]["manage_user"] = reverse(
+            "user:manage", request=request
+        )
+
+    return Response(data)
