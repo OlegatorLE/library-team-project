@@ -91,15 +91,14 @@ class BorrowingViewSet(
 
     @staticmethod
     def borrowing_helper(borrowing: Borrowing):
-        with transaction.atomic():
-            money_to_pay = 100
-            session_data = create_checkout_session(money_to_pay)
+        money_to_pay = borrowing.price
+        session_data = create_checkout_session(money_to_pay)
 
-            Payment.objects.create(
-                status=0,
-                type=0,
-                borrowing=borrowing,
-                session_url=session_data["session_url"],
-                session_id=session_data["session_id"],
-                money_to_pay=money_to_pay
-            )
+        Payment.objects.create(
+            status=0,
+            type=0,
+            borrowing=borrowing,
+            session_url=session_data["session_url"],
+            session_id=session_data["session_id"],
+            money_to_pay=money_to_pay
+        )
