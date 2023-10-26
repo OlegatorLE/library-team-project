@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    command: >
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+
+  redis:
+    image: redis
+    hostname: redis
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A library_team_project worker --loglevel=info
+    volumes:
+      - ./:/app
+    links:
+      - redis
+    depends_on:
+      - redis
