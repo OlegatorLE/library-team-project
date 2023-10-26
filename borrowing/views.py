@@ -105,23 +105,24 @@ class BorrowingViewSet(
 
     @staticmethod
     def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
-        payment_id = Payment.objects.count() + 1
-        base_url = request.build_absolute_uri(
-            reverse("payment:payment-detail", kwargs={"pk": payment_id})
+        money_to_pay = int(money * 100)
+
+        payment = Payment.objects.create(
+            status=0,
+            type=payment_type,
+            borrowing=borrowing,
+            money_to_pay=money_to_pay,
         )
 
-        money_to_pay = int(money * 100)
+        base_url = request.build_absolute_uri(
+            reverse("payment:payment-detail", kwargs={"pk": payment.id})
+        )
 
         session_data = create_checkout_session(money_to_pay, base_url)
 
         if session_data.get("error", None):
             return Response(session_data, status=status.HTTP_400_BAD_REQUEST)
 
-        Payment.objects.create(
-            status=0,
-            type=payment_type,
-            borrowing=borrowing,
-            session_url=session_data["session_url"],
-            session_id=session_data["session_id"],
-            money_to_pay=money_to_pay,
-        )
+        payment.session_url = session_data["session_url"]
+        payment.session_id = session_data["session_id"]
+        payment.save()
