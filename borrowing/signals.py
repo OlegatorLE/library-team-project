@@ -14,4 +14,4 @@ def new_borrowing(sender, instance, created, **kwargs):
         message = (f"New borrowing created at {instance.borrow_date}.\n"
                    f"ID: {instance.id}\n"
                    f"Book: {instance.book.title}")
-        asyncio.run(send_notification(message, chat_id=-4035854950))
+        asyncio.run(send_notification(message, chat_id=settings.CHAT_ID))
