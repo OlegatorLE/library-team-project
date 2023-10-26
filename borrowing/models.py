@@ -10,30 +10,27 @@ class Borrowing(models.Model):
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
     book = models.ForeignKey(
-        Book,
-        on_delete=models.CASCADE,
-        related_name="borrowings"
+        Book, on_delete=models.CASCADE, related_name="borrowings"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="borrowings"
+        related_name="borrowings",
     )
 
     @property
     def price(self):
         return (
-            self.book.daily_fee *
-            (self.borrow_date - self.expected_return_date).days
+            self.book.daily_fee
+            * (self.borrow_date - self.expected_return_date).days
         )
 
     @property
     def overdue(self):
         if self.actual_return_date:
             return (
-                (self.actual_return_date - self.expected_return_date).days *
-                self.book.daily_fee
-            )
+                self.actual_return_date - self.expected_return_date
+            ).days * self.book.daily_fee
         return 0
 
     @staticmethod
@@ -41,7 +38,9 @@ class Borrowing(models.Model):
         if book.inventory > 0:
             book.inventory -= 1
         else:
-            raise error_to_raise("Book is out of stock and cannot be borrowed.")
+            raise error_to_raise(
+                "Book is out of stock and cannot be borrowed."
+            )
 
     def clean(self):
         Borrowing.validate_borrowing(

@@ -12,7 +12,11 @@ from .telegram_helper import send_notification
 def new_borrowing(sender, instance, created, **kwargs):
     if created:
         print(instance.id)
-        message = (f"New borrowing created at {instance.borrow_date}.\n"
-                   f"ID: {instance.id}\n"
-                   f"Book: {instance.book.title}")
-        asyncio.run(send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID))
+        message = (
+            f"New borrowing created at {instance.borrow_date}.\n"
+            f"ID: {instance.id}\n"
+            f"Book: {instance.book.title}"
+        )
+        asyncio.run(
+            send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
+        )

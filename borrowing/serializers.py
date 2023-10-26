@@ -10,8 +10,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_borrowing(
-            attrs["book"],
-            error_to_raise=ValidationError
+            attrs["book"], error_to_raise=ValidationError
         )
         attrs["book"].save()
         return data
