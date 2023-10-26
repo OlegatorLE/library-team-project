@@ -1,6 +1,8 @@
 import stripe
 from rest_framework import viewsets, mixins
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from payment.models import Payment
 from payment.serializers import PaymentSerializer, PaymentListSerializer
@@ -29,9 +31,21 @@ class PaymentViewSet(
 
         return self.serializer_class
 
+    @action(methods=["GET"], detail=True, url_path="success")
+    def success(self, request, pk=None):
+        session_id = self.get_object().session_id
+        payment = Payment.objects.get(session_id=session_id)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        session = stripe.checkout.Session.retrieve(session_id)
+        if session["payment_status"] == "paid":
+            payment.status = 1
+            payment.save()
+        serializer = PaymentSerializer(payment)
+        return Response(serializer.data)
 
-def create_checkout_session(money_to_pay: int):
-    domain_url = "http://localhost:8000/"
+
+def create_checkout_session(money_to_pay: int, borrowing_id: int):
+    domain_url = f"http://localhost:8000/api/payment/payments/{borrowing_id}/"
     stripe.api_key = settings.STRIPE_SECRET_KEY
     try:
         checkout_session = stripe.checkout.Session.create(
