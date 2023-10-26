@@ -85,8 +85,9 @@ class BorrowingViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        borrowing = serializer.save(user=self.request.user)
-        self.borrowing_helper(borrowing)
+        with transaction.atomic():
+            borrowing = serializer.save(user=self.request.user)
+            self.borrowing_helper(borrowing)
 
     @staticmethod
     def borrowing_helper(borrowing: Borrowing):
