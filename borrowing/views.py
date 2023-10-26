@@ -2,6 +2,7 @@ import http
 from datetime import datetime
 
 from django.db import transaction
+from django.urls import reverse
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -94,13 +95,17 @@ class BorrowingViewSet(
     def perform_create(self, serializer):
         with transaction.atomic():
             borrowing = serializer.save(user=self.request.user)
-            self.borrowing_helper(borrowing)
+            self.borrowing_helper(self.request, borrowing)
 
     @staticmethod
-    def borrowing_helper(borrowing: Borrowing):
-        with transaction.atomic():
-            money_to_pay = int(borrowing.price * 100)
-            session_data = create_checkout_session(money_to_pay, borrowing.id)
+    def borrowing_helper(request, borrowing: Borrowing):
+        payment_id = Payment.objects.count() + 1
+        base_url = request.build_absolute_uri(
+            reverse("payment:payment-detail", kwargs={"pk": payment_id})
+        )
+
+        money_to_pay = int(borrowing.price * 100)
+        session_data = create_checkout_session(money_to_pay, base_url)
 
         if session_data.get("error", None):
             return Response(session_data, status=status.HTTP_400_BAD_REQUEST)

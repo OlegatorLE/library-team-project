@@ -1,4 +1,5 @@
 import stripe
+from django.urls import reverse
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -45,13 +46,16 @@ class PaymentViewSet(
         serializer = PaymentSerializer(payment)
         return Response(serializer.data)
 
+    @action(methods=["GET"], detail=True, url_path="cancelled")
+    def cancel(self, request, pk=None):
+        return Response({"detail": "You can make your pay in next 24 hours"})
 
-def create_checkout_session(money_to_pay: int, borrowing_id: int):
-    domain_url = f"http://localhost:8000/api/payment/payments/{borrowing_id}/"
+
+def create_checkout_session(money_to_pay: int, domain_url: str):
     stripe.api_key = settings.STRIPE_SECRET_KEY
     try:
         checkout_session = stripe.checkout.Session.create(
-            success_url=domain_url + "success?session_id={CHECKOUT_SESSION_ID}",
+            success_url=domain_url + "success/",
             cancel_url=domain_url + "cancelled/",
             payment_method_types=["card"],
             mode="payment",
