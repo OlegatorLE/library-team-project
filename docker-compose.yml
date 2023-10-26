@@ -27,3 +27,18 @@ services:
       - redis
     depends_on:
       - redis
+
+  flower:
+    build:
+      context: .
+    hostname: flower
+    entrypoint: celery
+    command: -A library_team_project flower
+    volumes:
+      - ./:/app
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
