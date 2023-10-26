@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import transaction
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -22,26 +23,29 @@ class BorrowingViewSet(
 ):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = self.queryset.select_related("book", "user")
 
-        user_id = self.request.query_params.get("user_id")
-        is_active = self.request.query_params.get("is_active")
+        if self.request.user.is_staff:
+            user_id = self.request.query_params.get("user_id")
+            is_active = self.request.query_params.get("is_active")
 
-        if user_id:
-            queryset = queryset.filter(user_id=int(user_id))
+            if user_id:
+                queryset = queryset.filter(user_id=int(user_id))
 
-        if is_active:
-            is_active = is_active.lower()
+            if is_active:
+                is_active = is_active.lower()
+                if is_active == "false":
+                    queryset = queryset.filter(actual_return_date__isnull=False)
 
-            if is_active == "false":
-                queryset = queryset.filter(actual_return_date__isnull=False)
+                if is_active == "true":
+                    queryset = queryset.filter(actual_return_date__isnull=True)
 
-            if is_active == "true":
-                queryset = queryset.filter(actual_return_date__isnull=True)
+            return queryset
 
-        return queryset
+        return queryset.filter(user_id=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "list":
