@@ -10,7 +10,9 @@ class Borrowing(models.Model):
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
     book = models.ForeignKey(
-        Book, on_delete=models.CASCADE, related_name="borrowings"
+        Book,
+        on_delete=models.CASCADE,
+        related_name="borrowings"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -21,8 +23,8 @@ class Borrowing(models.Model):
     @property
     def price(self):
         return (
-            self.book.daily_fee
-            * (self.borrow_date - self.expected_return_date).days
+            self.book.daily_fee *
+            (self.expected_return_date - self.borrow_date).days
         )
 
     @property
