@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import stripe.error
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -99,9 +100,12 @@ class BorrowingViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        with transaction.atomic():
-            borrowing = serializer.save(user=self.request.user)
-            self.create_payment_for_borrowing(self.request, borrowing, borrowing.price, 0)
+        try:
+            with transaction.atomic():
+                borrowing = serializer.save(user=self.request.user)
+                self.create_payment_for_borrowing(self.request, borrowing, borrowing.price, 0)
+        except stripe.error.APIError:
+            borrowing.delete()
 
     @staticmethod
     def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
@@ -121,7 +125,7 @@ class BorrowingViewSet(
         session_data = create_checkout_session(money_to_pay, base_url)
 
         if session_data.get("error", None):
-            return Response(session_data, status=status.HTTP_400_BAD_REQUEST)
+            raise stripe.error.APIError
 
         payment.session_url = session_data["session_url"]
         payment.session_id = session_data["session_id"]
