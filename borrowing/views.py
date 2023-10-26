@@ -85,20 +85,20 @@ class BorrowingViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        borrowing = serializer.save(user=self.request.user)
-        self.borrowing_helper(borrowing)
+        with transaction.atomic():
+            borrowing = serializer.save(user=self.request.user)
+            self.borrowing_helper(borrowing)
 
     @staticmethod
     def borrowing_helper(borrowing: Borrowing):
-        with transaction.atomic():
-            money_to_pay = 100
-            session_data = create_checkout_session(money_to_pay)
+        money_to_pay = borrowing.price
+        session_data = create_checkout_session(money_to_pay)
 
-            Payment.objects.create(
-                status=0,
-                type=0,
-                borrowing=borrowing,
-                session_url=session_data["session_url"],
-                session_id=session_data["session_id"],
-                money_to_pay=money_to_pay
-            )
+        Payment.objects.create(
+            status=0,
+            type=0,
+            borrowing=borrowing,
+            session_url=session_data["session_url"],
+            session_id=session_data["session_id"],
+            money_to_pay=money_to_pay
+        )

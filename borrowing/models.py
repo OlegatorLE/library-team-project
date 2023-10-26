@@ -20,6 +20,22 @@ class Borrowing(models.Model):
         related_name="borrowings"
     )
 
+    @property
+    def price(self):
+        return (
+            self.book.daily_fee *
+            (self.borrow_date - self.expected_return_date).days
+        )
+
+    @property
+    def overdue(self):
+        if self.actual_return_date:
+            return (
+                (self.actual_return_date - self.expected_return_date).days *
+                self.book.daily_fee
+            )
+        return 0
+
     @staticmethod
     def validate_borrowing(book, error_to_raise):
         if book.inventory > 0:
