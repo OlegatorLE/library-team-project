@@ -29,6 +29,8 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
 
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
