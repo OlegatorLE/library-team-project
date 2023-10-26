@@ -37,15 +37,22 @@ class Borrowing(models.Model):
         return 0
 
     @staticmethod
-    def validate_borrowing(book, error_to_raise):
+    def validate_borrowing(book, user_borrowings, error_to_raise):
         if book.inventory > 0:
             book.inventory -= 1
         else:
             raise error_to_raise("Book is out of stock and cannot be borrowed.")
 
+        for borrowing in user_borrowings:
+            if borrowing.payments.filter(status=0).exists():
+                raise error_to_raise("You cannot borrow a new book with pending payments")
+
     def clean(self):
+        user_borrowings = Borrowing.objects.filter(user=self.user).all()
+
         Borrowing.validate_borrowing(
             self.book,
+            user_borrowings,
             ValidationError,
         )
 

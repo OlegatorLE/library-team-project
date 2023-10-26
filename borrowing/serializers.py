@@ -3,15 +3,22 @@ from rest_framework.exceptions import ValidationError
 
 from book.serializers import BookSerializer
 from borrowing.models import Borrowing
+from payment.models import Payment
 from payment.serializers import PaymentSerializer
+from user.models import User
 from user.serializers import UserSerializer
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
+        user = self.context["request"].user
+        user_instance = User.objects.get(email=user)
+        user_borrowings = Borrowing.objects.filter(user=user_instance).all()
+
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_borrowing(
             attrs["book"],
+            user_borrowings,
             error_to_raise=ValidationError
         )
         attrs["book"].save()
