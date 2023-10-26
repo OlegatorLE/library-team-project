@@ -50,8 +50,8 @@ class BorrowingViewSet(
 
                 if is_active == "true":
                     queryset = queryset.filter(actual_return_date__isnull=True)
-
             return queryset
+        return queryset.filter(user_id=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "list":
