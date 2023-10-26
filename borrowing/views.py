@@ -12,6 +12,8 @@ from borrowing.serializers import (
     BorrowingListSerializer,
     BorrowingDetailSerializer, BorrowingReturnSerializer,
 )
+from payment.models import Payment
+from payment.views import create_checkout_session
 
 
 class BorrowingViewSet(
@@ -79,4 +81,22 @@ class BorrowingViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        borrowing = serializer.save(user=self.request.user)
+        self.borrowing_helper(borrowing)
+
+    @staticmethod
+    def borrowing_helper(borrowing: Borrowing):
+        with transaction.atomic():
+            money_to_pay = 100
+            session_data = create_checkout_session(money_to_pay)
+
+            print(session_data)
+
+            Payment.objects.create(
+                status=0,
+                type=0,
+                borrowing=borrowing,
+                session_url=session_data["session_url"],
+                session_id=session_data["session_id"],
+                money_to_pay=money_to_pay
+            )
