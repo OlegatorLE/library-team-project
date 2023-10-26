@@ -53,8 +53,6 @@ class BorrowingViewSet(
 
             return queryset
 
-        return queryset.filter(user_id=self.request.user)
-
     def get_serializer_class(self):
         if self.action == "list":
             return BorrowingListSerializer
@@ -100,8 +98,12 @@ class BorrowingViewSet(
 
     @staticmethod
     def borrowing_helper(borrowing: Borrowing):
-        money_to_pay = int(borrowing.price * 100)
-        session_data = create_checkout_session(money_to_pay)
+        with transaction.atomic():
+            money_to_pay = int(borrowing.price * 100)
+            session_data = create_checkout_session(money_to_pay, borrowing.id)
+
+        if session_data.get("error", None):
+            return Response(session_data, status=status.HTTP_400_BAD_REQUEST)
 
         Payment.objects.create(
             status=0,
