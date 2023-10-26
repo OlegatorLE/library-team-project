@@ -82,8 +82,8 @@ class BorrowingViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if payment_obj := borrowing.payments.get(status=0):
-            return HttpResponseRedirect(payment_obj.session_url)
+        if (payment_obj := borrowing.payments.filter(status=0)).exists():
+            return HttpResponseRedirect(payment_obj.first().session_url)
 
         with transaction.atomic():
             borrowing.actual_return_date = datetime.today().date()
