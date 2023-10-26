@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from payment.views import api_root
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", api_root, name="api-root"),
     path("api/book/", include("book.urls", namespace="book")),
     path("api/users/", include("user.urls", namespace="user")),
     path("api/borrowing/", include("borrowing.urls", namespace="borrowing")),
