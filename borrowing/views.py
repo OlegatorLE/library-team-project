@@ -90,8 +90,6 @@ class BorrowingViewSet(
             money_to_pay = 100
             session_data = create_checkout_session(money_to_pay)
 
-            print(session_data)
-
             Payment.objects.create(
                 status=0,
                 type=0,
