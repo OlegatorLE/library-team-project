@@ -1,7 +1,5 @@
 from datetime import date, timedelta
 
-import asyncio
-
 from django.conf import settings
 
 from .models import Borrowing
@@ -23,11 +21,7 @@ def check_borrowing_overdue():
                 f"Today: {date.today()}\n"
                 f"Expected return date: {borrowing.expected_return_date}"
             )
-            asyncio.run(
-                send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
-            )
+            send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
     else:
         message = "No borrowings overdue today!"
-        asyncio.run(
-            send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
-        )
+        send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)

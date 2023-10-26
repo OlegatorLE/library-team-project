@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import asyncio
-
 
 from .models import Borrowing
 from .telegram_helper import send_notification
@@ -17,6 +15,4 @@ def new_borrowing(sender, instance, created, **kwargs):
             f"ID: {instance.id}\n"
             f"Book: {instance.book.title}"
         )
-        asyncio.run(
-            send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
-        )
+        send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)
