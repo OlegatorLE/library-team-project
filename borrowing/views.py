@@ -12,7 +12,8 @@ from borrowing.models import Borrowing
 from borrowing.serializers import (
     BorrowingSerializer,
     BorrowingListSerializer,
-    BorrowingDetailSerializer, BorrowingReturnSerializer,
+    BorrowingDetailSerializer,
+    BorrowingReturnSerializer,
 )
 from payment.models import Payment
 from payment.views import create_checkout_session
@@ -26,7 +27,9 @@ class BorrowingViewSet(
 ):
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [
+        IsAuthenticated,
+    ]
 
     def get_queryset(self):
         queryset = self.queryset.select_related("book", "user")
@@ -41,7 +44,9 @@ class BorrowingViewSet(
             if is_active:
                 is_active = is_active.lower()
                 if is_active == "false":
-                    queryset = queryset.filter(actual_return_date__isnull=False)
+                    queryset = queryset.filter(
+                        actual_return_date__isnull=False
+                    )
 
                 if is_active == "true":
                     queryset = queryset.filter(actual_return_date__isnull=True)
@@ -73,7 +78,10 @@ class BorrowingViewSet(
         serializer = self.get_serializer(borrowing)
 
         if borrowing.actual_return_date:
-            return Response({"detail": "The book has already been returned."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "The book has already been returned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         with transaction.atomic():
             borrowing.actual_return_date = datetime.today().date()
@@ -101,5 +109,5 @@ class BorrowingViewSet(
             borrowing=borrowing,
             session_url=session_data["session_url"],
             session_id=session_data["session_id"],
-            money_to_pay=money_to_pay
+            money_to_pay=money_to_pay,
         )
