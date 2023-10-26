@@ -1,7 +1,7 @@
-import http
 from datetime import datetime
 
 from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -82,6 +82,9 @@ class BorrowingViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if payment_obj := borrowing.payments.get(status=0):
+            return HttpResponseRedirect(payment_obj.session_url)
+
         with transaction.atomic():
             borrowing.actual_return_date = datetime.today().date()
             borrowing.save()
@@ -90,21 +93,24 @@ class BorrowingViewSet(
             book.inventory += 1
             book.save()
 
+        if borrowing.actual_return_date > borrowing.expected_return_date:
+            self.create_payment_for_borrowing(self.request, borrowing, borrowing.overdue, 1)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
         with transaction.atomic():
             borrowing = serializer.save(user=self.request.user)
-            self.borrowing_helper(self.request, borrowing)
+            self.create_payment_for_borrowing(self.request, borrowing, borrowing.price, 0)
 
     @staticmethod
-    def borrowing_helper(request, borrowing: Borrowing):
+    def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
         payment_id = Payment.objects.count() + 1
         base_url = request.build_absolute_uri(
             reverse("payment:payment-detail", kwargs={"pk": payment_id})
         )
 
-        money_to_pay = int(borrowing.price * 100)
+        money_to_pay = int(money * 100)
         session_data = create_checkout_session(money_to_pay, base_url)
 
         if session_data.get("error", None):
@@ -112,7 +118,7 @@ class BorrowingViewSet(
 
         Payment.objects.create(
             status=0,
-            type=0,
+            type=payment_type,
             borrowing=borrowing,
             session_url=session_data["session_url"],
             session_id=session_data["session_id"],
