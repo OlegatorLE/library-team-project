@@ -36,7 +36,7 @@ def sample_borrowing(book, user, **params):
     defaults = {
         "expected_return_date": "2000-10-05",
         "book": book,
-        "user": user
+        "user": user,
     }
     defaults.update(params)
 
@@ -66,10 +66,7 @@ class PrivateBorrowingApiTest(TestCase):
         book = sample_book()
         user_borrowing = sample_borrowing(book, self.user)
 
-        other_user = create_user(
-            email="cool@test.com",
-            password="testpass"
-        )
+        other_user = create_user(email="cool@test.com", password="testpass")
         other_user_borrowing = sample_borrowing(book, other_user)
 
         res = self.client.get(BORROWING_URL)
@@ -83,25 +80,19 @@ class PrivateBorrowingApiTest(TestCase):
     def test_post_borrowing(self):
         book = sample_book()
 
-        payload = {
-            "expected_return_date": "2000-10-05",
-            "book": book.id
-        }
+        payload = {"expected_return_date": "2000-10-05", "book": book.id}
 
         response = self.client.post(BORROWING_URL, payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         updated_book = Book.objects.get(pk=book.id)
 
-        self.assertEqual(updated_book.inventory, book.inventory-1)
+        self.assertEqual(updated_book.inventory, book.inventory - 1)
 
     def test_post_borrowing_book_has_0_inventory(self):
         book = sample_book(inventory=0)
 
-        payload = {
-            "expected_return_date": "2000-10-05",
-            "book": book.id
-        }
+        payload = {"expected_return_date": "2000-10-05", "book": book.id}
 
         response = self.client.post(BORROWING_URL, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -110,9 +101,7 @@ class PrivateBorrowingApiTest(TestCase):
 class AdminBorrowingApiTest(TestCase):
     def setUp(self) -> None:
         self.user = create_user(
-            email="admintest@test.com",
-            password="testpass",
-            is_staff=True
+            email="admintest@test.com", password="testpass", is_staff=True
         )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
@@ -120,7 +109,9 @@ class AdminBorrowingApiTest(TestCase):
     def test_filtering_is_active(self):
         book = sample_book()
         borrowing_active = sample_borrowing(book, self.user)
-        borrowing_non_active = sample_borrowing(book, self.user, actual_return_date="2000-10-06")
+        borrowing_non_active = sample_borrowing(
+            book, self.user, actual_return_date="2000-10-06"
+        )
 
         res = self.client.get(BORROWING_URL, {"is_active": True})
 
@@ -133,15 +124,13 @@ class AdminBorrowingApiTest(TestCase):
     def test_filtering_by_user_id(self):
         book = sample_book()
         first_user = create_user(
-            email="cooluser@test.com",
-            password="testpass"
+            email="cooluser@test.com", password="testpass"
         )
 
         first_borrowing = sample_borrowing(book, first_user)
 
         second_user = create_user(
-            email="bestuser@test.com",
-            password="testpass"
+            email="bestuser@test.com", password="testpass"
         )
         second_borrowing = sample_borrowing(book, second_user)
 
@@ -160,20 +149,17 @@ class ReturnActionTest(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = create_user(
-            email="testemail@test.com",
-            password="testpass"
+            email="testemail@test.com", password="testpass"
         )
         self.client.force_authenticate(self.user)
 
     def test_if_book_already_returned(self):
         book = sample_book()
         borrowing = sample_borrowing(
-            book,
-            self.user,
-            actual_return_date="2000-10-05"
+            book, self.user, actual_return_date="2000-10-05"
         )
         url_for_return = return_url(borrowing.id)
-        res = self.client.post(url_for_return,{})
+        res = self.client.post(url_for_return, {})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_book_inventory_incremented(self):
@@ -190,4 +176,3 @@ class ReturnActionTest(TestCase):
         get_after_transaction = Book.objects.get(id=book.id)
 
         self.assertEqual(get_after_transaction.inventory, book.inventory + 1)
-
