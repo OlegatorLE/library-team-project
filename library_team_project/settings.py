@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "rest_framework_simplejwt",
+    "drf_spectacular",
     "coverage",
     "payment",
     "borrowing",
@@ -146,6 +147,24 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Management System API",
+    "DESCRIPTION": "Online management system for book borrowings in the city library",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
+    "TAGS": [
+        {"name": "books", "description": "Operations related to managing books inventory"},
+        {"name": "users", "description": "Operations related to managing customers"},
+        {"name": "borrowings", "description": "Operations related to managing book borrowings"},
+        {"name": "payments", "description": "Operations related to handling payments"},
+    ],
+}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -154,6 +173,7 @@ SIMPLE_JWT = {
 }
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -161,3 +181,5 @@ REST_FRAMEWORK = {
 
 STRIPE_PUBLISHABLE_KEY = os.environ["STRIPE_PUBLISHABLE_KEY"]
 STRIPE_SECRET_KEY = os.environ["STRIPE_SECRET_KEY"]
+
+
