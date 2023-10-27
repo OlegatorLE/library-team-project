@@ -35,10 +35,43 @@ An online management system for book borrowings that optimizes the work of libra
 
 **Swagger Documentation**
 
+**Docker Containerization**
+
+* The application is containerized using Docker for simplified deployment and management.
+
+
+
+## Technologies
+
+[Django](https://docs.djangoproject.com/en/4.2/) - A high-level Python web framework that encourages rapid development and clean, pragmatic design.
+
+[Django Rest Framework (DRF)](https://www.django-rest-framework.org/) - A powerful and flexible toolkit for building Web APIs.
+
+[PostgreSQL](https://www.postgresql.org/docs/) - A powerful, open-source object-relational database system.
+
+[Redis](https://redis.io/documentation) - An open-source, in-memory data structure store used as a database, cache, and message broker.
+
+[Celery](https://docs.celeryproject.org/en/stable/) - An asynchronous task queue/job queue based on distributed message passing.
+
+[Stripe](https://stripe.com/docs) - A platform for processing online payments, commonly used in Django Rest Framework projects to manage financial transactions in web applications.
+
+[Python-dotenv](https://pypi.org/project/python-dotenv/) - A Python module that reads key-value pairs from a .env file and can set them as environment variables.
+
+[Flower](https://flower.dev/docs/) - A web-based tool for monitoring and administrating Celery clusters.
+
+[Telegram API](https://core.telegram.org/bots/api) - An API that enables the integration of Telegram functionality into applications, allowing for the sending of notifications through Telegram chats.
+
+[Docker](https://docs.docker.com/) - A platform for developing, shipping, and running applications using containerization.
+
+[Swagger](https://swagger.io/docs/) - An open-source software framework backed by a large ecosystem of tools that helps developers design, build, document, and consume RESTful web services.
+
+[JWT](https://jwt.io/introduction/) - JSON Web Tokens are used for securely transmitting information between parties as a JSON object.
+
 ## Architecture
 
 The database structure is as follows:
 
+![Db structure](demo/library_db.jpg)
 
 
 ## Installation
@@ -95,3 +128,7 @@ Access the API documentation at
 ```shell
 /api/doc/swagger
 ```
+
+## Acknowledgments
+
+We would like to extend our gratitude to our mentors, Ivan Ramyk and Serhii Leonenko, for their valuable guidance and thorough review throughout the development and consultation process. Thank you for your support and insights.
