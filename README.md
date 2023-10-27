@@ -56,7 +56,8 @@ cd library-team-project
 
 ```shell
 python -m venv venv
-source venv/bin/activate
+source venv/Scripts/activate (on Windows)
+source venv/bin/activate (on macOS)
 pip install -r requirements.txt
 ```
 
