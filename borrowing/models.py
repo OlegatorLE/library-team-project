@@ -44,9 +44,7 @@ class Borrowing(models.Model):
     @staticmethod
     def validate_borrowing(book, user_borrowings, expected_return_date, error_to_raise):
         """Validate the borrowing process for a user and a book."""
-        if book.inventory > 0:
-            book.inventory -= 1
-        else:
+        if book.inventory == 0:
             raise error_to_raise(
                 "Book is out of stock and cannot be borrowed."
             )
