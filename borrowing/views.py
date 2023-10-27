@@ -98,8 +98,6 @@ class BorrowingViewSet(
             book.save()
             borrowing.save()
 
-
-
         if borrowing.actual_return_date > borrowing.expected_return_date:
             self.create_payment_for_borrowing(self.request, borrowing, borrowing.overdue, 1)
 
