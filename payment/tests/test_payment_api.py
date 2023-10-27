@@ -108,15 +108,6 @@ class PrivatePaymentsApi(TestCase):
         mock_create_payment_for_borrowing.assert_called_once()
 
 
-class AdminPaymentApiTest(TestCase):
-    def setUp(self) -> None:
-        self.user = create_user(
-            email="admintest@test.com", password="testpass", is_staff=True
-        )
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
-
-
 class TestSuccessEndpoint(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
