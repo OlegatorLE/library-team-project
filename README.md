@@ -39,7 +39,7 @@ An online management system for book borrowings that optimizes the work of libra
 
 The database structure is as follows:
 
-![Database Structure](demo/library_db.png)
+
 
 ## Installation
 
