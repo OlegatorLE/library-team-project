@@ -10,3 +10,10 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . .
+
+RUN adduser \
+    --disabled-password \
+    --no-create-home \
+    django-user
+
+USER django-user
