@@ -279,6 +279,24 @@
             "user_permissions": []
         }
     },
+       {
+        "model": "user.user",
+        "pk": 11,
+        "fields": {
+            "password": "pbkdf2_sha256$320000$oZqdjfUqKC500V7kk3kMmb$TBVlOMhfJxWrxbUnNpWZK0+rYM242g7do/YM5tkhn+M=",
+            "last_login": null,
+            "is_superuser": false,
+            "first_name": "Daniel",
+            "last_name": "Taylor",
+            "email": "user_borrowing@user.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2023-05-30T22:50:22.789Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+
 
      {
         "model": "borrowing.borrowing",
@@ -388,6 +406,17 @@
             "actual_return_date": null,
             "book": 10,
             "user": 1
+        }
+    },
+    {
+        "model": "borrowing.borrowing",
+        "pk": 11,
+        "fields": {
+            "borrow_date": "2024-03-18",
+            "expected_return_date": "2024-04-01",
+            "actual_return_date": "2024-05-15",
+            "book": 10,
+            "user": 11
         }
     },
     {
