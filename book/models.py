@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Book(models.Model):
+    """Model representing a book in the library."""
     class CoverChoices(models.TextChoices):
         HARD = "hard"
         SOFT = "soft"
