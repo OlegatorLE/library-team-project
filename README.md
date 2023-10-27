@@ -82,6 +82,7 @@ This section contains a screenshot showcasing links to the main functional capab
 
 ![library_api](demo/library_api.jpg)
 
+
 ## Installation
 
 ### Using GitHub
