@@ -7,6 +7,7 @@ from book.models import Book
 
 
 class Borrowing(models.Model):
+    """Model representing the borrowing of a book by a user."""
     borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
@@ -23,6 +24,7 @@ class Borrowing(models.Model):
 
     @property
     def price(self):
+        """Calculate the total price for the borrowing."""
         return (
             self.book.daily_fee *
             ((self.expected_return_date - self.borrow_date).days + 1)
@@ -30,6 +32,7 @@ class Borrowing(models.Model):
 
     @property
     def overdue(self):
+        """Calculate the overdue fine for the borrowing."""
         if self.actual_return_date:
             return (
                 self.actual_return_date - self.expected_return_date
@@ -38,6 +41,7 @@ class Borrowing(models.Model):
 
     @staticmethod
     def validate_borrowing(book, user_borrowings, expected_return_date, error_to_raise):
+        """Validate the borrowing process for a user and a book."""
         if book.inventory > 0:
             book.inventory -= 1
         else:
@@ -54,6 +58,7 @@ class Borrowing(models.Model):
 
 
     def clean(self):
+        """Perform data validation for the borrowing."""
         user_borrowings = Borrowing.objects.filter(user=self.user).all()
 
         Borrowing.validate_borrowing(
@@ -70,6 +75,7 @@ class Borrowing(models.Model):
         using=None,
         update_fields=None,
     ):
+        """Save the borrowing instance after cleaning data."""
         self.full_clean()
         return super(Borrowing, self).save(
             force_insert, force_update, using, update_fields

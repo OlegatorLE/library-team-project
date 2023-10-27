@@ -7,6 +7,11 @@ from .telegram_helper import send_notification
 
 
 def check_borrowing_overdue():
+    """
+    Check for any overdue borrowings and send notifications if found.
+
+    Queries the database for any borrowings that are overdue and sends a notification to the specified chat ID.
+    """
     borrowings = Borrowing.objects.filter(
         expected_return_date__lte=date.today() + timedelta(days=1),
         actual_return_date__isnull=True,
