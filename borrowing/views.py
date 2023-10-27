@@ -92,11 +92,13 @@ class BorrowingViewSet(
 
         with transaction.atomic():
             borrowing.actual_return_date = timezone.now().date()
-            borrowing.save()
-
             book = borrowing.book
             book.inventory += 1
+
             book.save()
+            borrowing.save()
+
+
 
         if borrowing.actual_return_date > borrowing.expected_return_date:
             self.create_payment_for_borrowing(self.request, borrowing, borrowing.overdue, 1)
@@ -108,7 +110,13 @@ class BorrowingViewSet(
         try:
             with transaction.atomic():
                 borrowing = serializer.save(user=self.request.user)
+
+                book = borrowing.book
+                book.inventory -= 1
+                book.save()
+
                 self.create_payment_for_borrowing(self.request, borrowing, borrowing.price, 0)
+
         except stripe.error.APIError:
             borrowing.delete()
 
