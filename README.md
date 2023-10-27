@@ -60,18 +60,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Configure the .env file:
-```shell
-TELEGRAM_API_KEY=TELEGRAM_API_KEY
-DJANGO_SECRET_KEY=DJANGO_SECRET_KEY
-STRIPE_PUBLISHABLE_KEY=STRIPE_PUBLISHABLE_KEY
-STRIPE_SECRET_KEY=STRIPE_SECRET_KEY
-TELEGRAM_CHAT_ID=TELEGRAM_CHAT_ID
-POSTGRES_HOST=POSTGRES_HOST
-POSTGRES_DB=POSTGRES_DB
-POSTGRES_USER=POSTGRES_USER
-POSTGRES_PASSWORD=POSTGRES_PASSWORD
-```
+3. Generate a .env file from .env.sample.
+
 
 4. Run the database migrations and load initial data:
 
@@ -84,13 +74,13 @@ python manage.py loaddata library_db_data.json
 ```shell
 python manage.py runserver
 ```
-
 ## Run with Docker
-### Ensure Docker is installed and set up.
+* Ensure Docker is installed and set up.
+
+* Execute the following command to build and start the Docker containers:
 
 ```shell
-docker-compose build
-docker-compose up
+docker-compose up --build
 ```
 
 ## Getting Access through JWT
