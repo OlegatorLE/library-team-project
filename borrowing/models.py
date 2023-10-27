@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from book.models import Book
@@ -42,7 +41,7 @@ class Borrowing(models.Model):
         return 0
 
     @staticmethod
-    def validate_borrowing(book, user_borrowings, expected_return_date, error_to_raise):
+    def validate_borrowing(book, user_borrowings, expected_return_date, borrow_date, error_to_raise):
         """Validate the borrowing process for a user and a book."""
         if book.inventory == 0:
             raise error_to_raise(
@@ -53,7 +52,7 @@ class Borrowing(models.Model):
             if borrowing.payments.filter(status=0).exists():
                 raise error_to_raise("You cannot borrow a new book with pending payments")
 
-        if expected_return_date < timezone.now().date():
+        if expected_return_date < borrow_date:
             raise error_to_raise("Expected return date cannot be earlier than today.")
 
     def clean(self):
@@ -64,6 +63,7 @@ class Borrowing(models.Model):
             self.book,
             user_borrowings,
             self.expected_return_date,
+            self.borrow_date,
             ValidationError,
         )
 
