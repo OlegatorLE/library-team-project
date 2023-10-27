@@ -71,7 +71,7 @@ An online management system for book borrowings that optimizes the work of libra
 
 The database structure is as follows:
 
-![Db structure](demo/library_db.jpg)
+![demo/library_db.jpg](https://github.com/OlegatorLE/library-team-project/blob/main/photo_2023-10-27_16-00-13.jpg)
 
 
 ## Installation
