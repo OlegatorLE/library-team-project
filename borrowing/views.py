@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 import stripe.error
 from django.db import transaction
@@ -91,7 +91,7 @@ class BorrowingViewSet(
             return HttpResponseRedirect(payment_obj.first().session_url)
 
         with transaction.atomic():
-            borrowing.actual_return_date = datetime.today().date()
+            borrowing.actual_return_date = timezone.now().date()
             borrowing.save()
 
             book = borrowing.book
