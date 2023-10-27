@@ -4,6 +4,10 @@ from payment.models import Payment
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    borrowing = serializers.PrimaryKeyRelatedField(
+        queryset=Payment.objects.select_related("borrowing__book", "borrowing__user")
+    )
+
     """Serializer for the Payment model."""
     class Meta:
         model = Payment

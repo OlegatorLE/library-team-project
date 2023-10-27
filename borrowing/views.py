@@ -37,7 +37,7 @@ class BorrowingViewSet(
 
     def get_queryset(self):
         """Get the queryset for borrowings."""
-        queryset = self.queryset.select_related("book", "user")
+        queryset = self.queryset.select_related("book", "user").prefetch_related("payments")
 
         if self.request.user.is_staff:
             user_id = self.request.query_params.get("user_id")
