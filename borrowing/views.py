@@ -1,9 +1,10 @@
-from datetime import datetime
+from django.utils import timezone
 
 import stripe.error
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -27,6 +28,7 @@ class BorrowingViewSet(
     mixins.RetrieveModelMixin,
     GenericViewSet,
 ):
+    """ViewSet for handling borrowings."""
     queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
     permission_classes = [
@@ -34,7 +36,8 @@ class BorrowingViewSet(
     ]
 
     def get_queryset(self):
-        queryset = self.queryset.select_related("book", "user")
+        """Get the queryset for borrowings."""
+        queryset = self.queryset.select_related("book", "user").prefetch_related("payments")
 
         if self.request.user.is_staff:
             user_id = self.request.query_params.get("user_id")
@@ -56,6 +59,7 @@ class BorrowingViewSet(
         return queryset.filter(user_id=self.request.user)
 
     def get_serializer_class(self):
+        """Get the appropriate serializer class for the action."""
         if self.action == "list":
             return BorrowingListSerializer
 
@@ -87,7 +91,7 @@ class BorrowingViewSet(
             return HttpResponseRedirect(payment_obj.first().session_url)
 
         with transaction.atomic():
-            borrowing.actual_return_date = datetime.today().date()
+            borrowing.actual_return_date = timezone.now().date()
             borrowing.save()
 
             book = borrowing.book
@@ -100,6 +104,7 @@ class BorrowingViewSet(
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
+        """Perform creation with transaction handling."""
         try:
             with transaction.atomic():
                 borrowing = serializer.save(user=self.request.user)
@@ -109,6 +114,7 @@ class BorrowingViewSet(
 
     @staticmethod
     def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
+        """Create payment for the borrowing."""
         money_to_pay = int(money * 100)
 
         payment = Payment.objects.create(
@@ -130,3 +136,21 @@ class BorrowingViewSet(
         payment.session_url = session_data["session_url"]
         payment.session_id = session_data["session_id"]
         payment.save()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="user_id",
+                description="Filter borrowings by user ID. (ex. ?user_id=1)",
+                type={"type": "number"},
+            ),
+            OpenApiParameter(
+                name="is_active",
+                description="Filter borrowings by active status. (ex. ?is_active=true)",
+                type={"type": "boolean"},
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """List all the borrowings."""
+        return super().list(request, *args, **kwargs)

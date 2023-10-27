@@ -3,6 +3,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
+    """Custom permission to allow only admin users to edit data."""
     def has_permission(self, request, view) -> bool:
         return bool(
             (request.method in SAFE_METHODS and request.user)
