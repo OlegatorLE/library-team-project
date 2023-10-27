@@ -34,6 +34,6 @@ def notify_payment_status(sender, instance, **kwargs):
     if instance.status == 1:
         message = (
             f"Payment for the borrowing ID: {instance.borrowing_id} "
-            f"in the amount of {instance.money_to_pay / 100}$ was completed successful"
+            f"in the amount of {instance.money_to_pay}$ was completed successful"
         )
         send_notification(message, chat_id=settings.TELEGRAM_CHAT_ID)

@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from unittest.mock import patch
 import stripe
 from django.test import TestCase
@@ -96,15 +97,18 @@ class PrivatePaymentsApi(TestCase):
             ],
         )
 
+    @patch("borrowing.models.timezone")
     @patch("borrowing.views.BorrowingViewSet.create_payment_for_borrowing")
     @patch("borrowing.signals.send_notification")
     def test_check_if_create_payment_called_after_borrowing(
-        self, mock_send_notification, mock_create_payment_for_borrowing
+        self, mock_send_notification, mock_create_payment_for_borrowing, mock_timezone_models
     ):
+        mock_timezone_models.now.return_value.date.return_value = date(2000, 10, 10)
         book = sample_book()
-        payload = {"expected_return_date": "2000-10-05", "book": book.id}
+        payload = {"expected_return_date": "2000-10-25", "book": book.id}
 
-        self.client.post(BORROWING_URL, payload)
+        res = self.client.post(BORROWING_URL, payload)
+
         mock_create_payment_for_borrowing.assert_called_once()
 
 
@@ -135,3 +139,5 @@ class TestSuccessEndpoint(TestCase):
 
         serializer = PaymentSerializer(updated_payment)
         self.assertEqual(response.data, serializer.data)
+
+        self.assertEqual(mock_send_notifications.call_count, 2)
