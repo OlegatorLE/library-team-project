@@ -100,6 +100,11 @@ def api_root(request):
         "Book-API": {
             "book_list": reverse("book:book-list", request=request),
         },
+        "Documentation": {
+            "schema": reverse("schema", request=request),
+            "swagger": reverse("swagger-ui", request=request),
+            "redoc": reverse("redoc", request=request),
+        }
     }
 
     if request.user.is_authenticated:
