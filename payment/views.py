@@ -18,17 +18,20 @@ class PaymentViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
+    """ViewSet for the Payment model."""
     queryset = Payment.objects.select_related("borrowing")
     serializer_class = PaymentSerializer
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
+        """Get the queryset based on user permissions."""
         if self.request.user.is_staff:
             return self.queryset
 
         return self.queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
+        """Get the appropriate serializer class based on the action."""
         if self.action == "list":
             return PaymentListSerializer
 
@@ -36,6 +39,7 @@ class PaymentViewSet(
 
     @action(methods=["GET"], detail=True, url_path="success")
     def success(self, request, pk=None):
+        """Handle successful payment sessions."""
         session_id = self.get_object().session_id
         payment = Payment.objects.get(session_id=session_id)
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -48,10 +52,12 @@ class PaymentViewSet(
 
     @action(methods=["GET"], detail=True, url_path="cancelled")
     def cancel(self, request, pk=None):
+        """Handle cancelled payment sessions."""
         return Response({"detail": "You can make your pay in next 24 hours"})
 
 
 def create_checkout_session(money_to_pay: int, domain_url: str):
+    """Create a checkout session for Stripe payment."""
     stripe.api_key = settings.STRIPE_SECRET_KEY
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -78,6 +84,7 @@ def create_checkout_session(money_to_pay: int, domain_url: str):
 
 @api_view(['GET'])
 def api_root(request):
+    """Provide the API root endpoint and related URLs based on user authentication."""
     data = {
         "User-API": {
             "user_create": reverse(
