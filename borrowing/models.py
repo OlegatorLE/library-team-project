@@ -56,7 +56,6 @@ class Borrowing(models.Model):
         if expected_return_date < timezone.now().date():
             raise error_to_raise("Expected return date cannot be earlier than today.")
 
-
     def clean(self):
         """Perform data validation for the borrowing."""
         user_borrowings = Borrowing.objects.filter(user=self.user).all()
