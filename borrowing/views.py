@@ -121,18 +121,19 @@ class BorrowingViewSet(
     @staticmethod
     def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
         """Create payment for the borrowing."""
-        money_to_pay = int(money * 100)
 
         payment = Payment.objects.create(
             status=0,
             type=payment_type,
             borrowing=borrowing,
-            money_to_pay=money_to_pay,
+            money_to_pay=money,
         )
 
         base_url = request.build_absolute_uri(
             reverse("payment:payment-detail", kwargs={"pk": payment.id})
         )
+
+        money_to_pay = int(money * 100)
 
         session_data = create_checkout_session(money_to_pay, base_url)
 
