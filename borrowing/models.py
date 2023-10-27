@@ -5,6 +5,8 @@ from rest_framework.exceptions import ValidationError
 
 from book.models import Book
 
+FINE_MULTIPLIER = 2
+
 
 class Borrowing(models.Model):
     """Model representing the borrowing of a book by a user."""
@@ -33,10 +35,10 @@ class Borrowing(models.Model):
     @property
     def overdue(self):
         """Calculate the overdue fine for the borrowing."""
-        if self.actual_return_date:
+        if self.actual_return_date and self.actual_return_date > self.expected_return_date:
             return (
                 self.actual_return_date - self.expected_return_date
-            ).days * self.book.daily_fee
+            ).days * self.book.daily_fee * FINE_MULTIPLIER
         return 0
 
     @staticmethod
