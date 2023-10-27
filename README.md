@@ -85,8 +85,9 @@ docker-compose up --build
 ```
 
 ## Getting Access through JWT
-* Create a user via the /api/users/ endpoint.
-* Obtain an access token via the /api/users/token endpoint.
+* Create a user using the /api/users/ endpoint.
+* Retrieve an access token using the /api/users/token endpoint.
+
 
 ## Swagger Documentation
 Access the API documentation at 
