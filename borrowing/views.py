@@ -1,7 +1,9 @@
-import http
 from datetime import datetime
 
+import stripe.error
 from django.db import transaction
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -81,6 +83,9 @@ class BorrowingViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if (payment_obj := borrowing.payments.filter(status=0)).exists():
+            return HttpResponseRedirect(payment_obj.first().session_url)
+
         with transaction.atomic():
             borrowing.actual_return_date = datetime.today().date()
             borrowing.save()
@@ -89,27 +94,39 @@ class BorrowingViewSet(
             book.inventory += 1
             book.save()
 
+        if borrowing.actual_return_date > borrowing.expected_return_date:
+            self.create_payment_for_borrowing(self.request, borrowing, borrowing.overdue, 1)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        with transaction.atomic():
-            borrowing = serializer.save(user=self.request.user)
-            self.borrowing_helper(borrowing)
+        try:
+            with transaction.atomic():
+                borrowing = serializer.save(user=self.request.user)
+                self.create_payment_for_borrowing(self.request, borrowing, borrowing.price, 0)
+        except stripe.error.APIError:
+            borrowing.delete()
 
     @staticmethod
-    def borrowing_helper(borrowing: Borrowing):
-        with transaction.atomic():
-            money_to_pay = int(borrowing.price * 100)
-            session_data = create_checkout_session(money_to_pay, borrowing.id)
+    def create_payment_for_borrowing(request, borrowing: Borrowing, money: int, payment_type: int):
+        money_to_pay = int(money * 100)
 
-        if session_data.get("error", None):
-            return Response(session_data, status=status.HTTP_400_BAD_REQUEST)
-
-        Payment.objects.create(
+        payment = Payment.objects.create(
             status=0,
-            type=0,
+            type=payment_type,
             borrowing=borrowing,
-            session_url=session_data["session_url"],
-            session_id=session_data["session_id"],
             money_to_pay=money_to_pay,
         )
+
+        base_url = request.build_absolute_uri(
+            reverse("payment:payment-detail", kwargs={"pk": payment.id})
+        )
+
+        session_data = create_checkout_session(money_to_pay, base_url)
+
+        if session_data.get("error", None):
+            raise stripe.error.APIError
+
+        payment.session_url = session_data["session_url"]
+        payment.session_id = session_data["session_id"]
+        payment.save()

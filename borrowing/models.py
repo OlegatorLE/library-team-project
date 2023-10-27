@@ -24,7 +24,7 @@ class Borrowing(models.Model):
     def price(self):
         return (
             self.book.daily_fee *
-            (self.expected_return_date - self.borrow_date).days
+            ((self.expected_return_date - self.borrow_date).days + 1)
         )
 
     @property
