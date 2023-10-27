@@ -28,7 +28,7 @@ class PaymentViewSet(
         if self.request.user.is_staff:
             return self.queryset
 
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(borrowing__user=self.request.user)
 
     def get_serializer_class(self):
         """Get the appropriate serializer class based on the action."""
