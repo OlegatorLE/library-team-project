@@ -39,6 +39,9 @@ An online management system for book borrowings that optimizes the work of libra
 
 * The application is containerized using Docker for simplified deployment and management.
 
+## Demo
+
+This section contains a screenshot showcasing links to the main functional capabilities of the project.
 
 
 ## Technologies
@@ -72,6 +75,12 @@ An online management system for book borrowings that optimizes the work of libra
 The database structure is as follows:
 
 ![demo/library_db.jpg](https://github.com/OlegatorLE/library-team-project/blob/main/photo_2023-10-27_16-00-13.jpg)
+
+## Demo
+
+This section contains a screenshot showcasing links to the main functional capabilities of the project.
+
+![library_api](demo/library_api.jpg)
 
 
 ## Installation
