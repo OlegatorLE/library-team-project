@@ -20,6 +20,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
         Borrowing.validate_borrowing(
             attrs["book"],
             user_borrowings,
+            attrs["expected_return_date"],
             error_to_raise=ValidationError
         )
         attrs["book"].save()
