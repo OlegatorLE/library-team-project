@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -14,12 +15,13 @@ class BorrowingSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         user_instance = User.objects.get(email=user)
         user_borrowings = Borrowing.objects.filter(user=user_instance).all()
-
+        borrow_date = attrs.get("borrow_date", timezone.now().date())
         data = super(BorrowingSerializer, self).validate(attrs=attrs)
         Borrowing.validate_borrowing(
             attrs["book"],
             user_borrowings,
             attrs["expected_return_date"],
+            borrow_date,
             error_to_raise=ValidationError
         )
         attrs["book"].save()
